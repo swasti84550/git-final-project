@@ -1,0 +1,105 @@
+
+{
+  "books": [
+    {
+      "id": 1,
+      "title": "The Great Gatsby",
+      "author": "F. Scott Fitzgerald",
+      "reviews": [
+        {
+          "id": 1,
+          "rating": 5,
+          "comment": "A classic masterpiece!"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "1984",
+      "author": "George Orwell",
+      "reviews": []
+    }
+  ]
+}
+
+app.post('/api/users/register', async (req, res) => {
+  const { username, email, password } = req.body;
+  const newUser = new User({ username, email, password });
+  await newUser.save();
+  res.status(201).json(newUser);
+});
+
+// Generate and send token
+
+app.post('/api/users/login', async (req, res) => {
+  const { email, password } = req.body;
+  const user = await User.findOne({ email });
+  if (!user || !await user.comparePassword(password)) {
+    return res.status(400).send('Invalid credentials');
+  }
+
+// login
+app.post('/api/users/login', async (req, res) => {
+  const { email, password } = req.body;
+  const user = await User.findOne({ email });
+  if (!user || !await user.comparePassword(password)) {
+    return res.status(400).send('Invalid credentials');
+  }
+
+app.post('/api/reviews/:bookId', async (req, res) => {
+  const { rating, comment } = req.body;
+  const newReview = new Review({ rating, comment, user: req.user.id, book: req.params.bookId });
+  await newReview.save();
+  res.status(201).json(newReview);
+});
+
+  // add review
+  {
+    const { rating, comment } = req.body;
+    const newReview = new Review({ rating, comment, user: req.user.id, book });
+    await newReview.save();
+    res.status(201).json(newReview);
+  });
+
+// delete review
+
+app.delete('/api/reviews/:reviewId', async (req, res) => {
+  const review = await Review.findByIdAndDelete(req.params.reviewId);
+  res.json({ message: 'Review deleted successfully' });
+});
+
+// Get All Books
+
+app.get('/api/books', async (req, res) => {
+  try {
+    const books = await Book.find();
+    res.json(books);
+  } catch (err) {
+    res.status(500).send('Error fetching books');
+  }
+});
+
+// search by isbn
+
+app.get('/api/books/:isbn', (req, res) => {
+  Book.findOne({ ISBN: req.params.isbn })
+    .then(book => res.json(book))
+    .catch(err => res.status(500).send('Error fetching book'));
+});
+
+// search by AURTHUR
+
+app.get('/api/books/title/:title', (req, res) => {
+  Book.find({ title: { $regex: req.params.title, $options: 'i' } })
+    .then(books => res.json(books))
+    .catch(err => res.status(500).send('Error fetching books'));
+});
+
+// search by TITLE
+
+app.get('/api/books/title/:title', (req, res) => {
+    Book.find({ title: { $regex: req.params.title, $options: 'i' } })
+      .then(books => res.json(books))
+      .catch(err => res.status(500).send('Error fetching books'));
+  });
+   
